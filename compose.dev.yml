@@ -1,0 +1,17 @@
+# Desenvolupament local amb la impressora simulada:
+#   docker compose -f compose.dev.yml up --build
+# i obre http://localhost:7007
+services:
+  tribuprint:
+    build:
+      context: .
+      args:
+        INSTALL_OFFICE: "false"   # imatge més lleugera per provar
+    container_name: tribuprint-dev
+    ports:
+      - "7007:7007"
+    environment:
+      PRINTER_BACKEND: mock
+      TZ: Europe/Madrid
+    volumes:
+      - ./data:/data

@@ -1,0 +1,14 @@
+# TribuPrint al servidor: copia aquest fitxer i el .env a ~/tribuprint/
+services:
+  tribuprint:
+    image: ghcr.io/twococos/tribuprint:latest
+    container_name: tribuprint
+    restart: unless-stopped
+    network_mode: host          # ipp-usb només escolta a localhost:60000
+    user: "1000:1000"           # coco ∈ lpadmin → CUPS permet pausar/cancel·lar pel socket
+    env_file: [.env]
+    volumes:
+      - ./data:/data
+      - /run/cups:/run/cups     # directori, no el fitxer (sobreviu als reinicis de CUPS)
+    healthcheck: { test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:7007/api/health')"], interval: 30s, timeout: 5s, retries: 3 }
+    logging: { driver: json-file, options: { max-size: "10m", max-file: "3" } }
