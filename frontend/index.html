@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ca" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#F7F3EA" />
+    <meta name="description" content="Servei de reprografia de la Tribu" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>TribuPrint</title>
+    <script>
+      // Tema guardat abans de pintar, per evitar un parpelleig
+      try { var t = localStorage.getItem('tp-theme'); if (t === 'dark') document.documentElement.dataset.theme = 'dark' } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
