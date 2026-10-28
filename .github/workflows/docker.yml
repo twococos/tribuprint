@@ -12,10 +12,10 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10
+      - uses: astral-sh/setup-uv@v10.3.2
       - name: Tests del backend
         working-directory: backend
         run: |
@@ -35,7 +35,7 @@ jobs:
   image:
     needs: test
     # A les PR només es comprova que la imatge es construeix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
