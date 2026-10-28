@@ -3,10 +3,7 @@
 # i obre http://localhost:7007
 services:
   tribuprint:
-    build:
-      context: .
-      args:
-        INSTALL_OFFICE: "false"   # imatge més lleugera per provar
+    build: .
     container_name: tribuprint-dev
     ports:
       - "7007:7007"

@@ -76,7 +76,7 @@ cd frontend && npm run typecheck
 | `DATA_DIR` | `/data` | BD i fitxers pujats |
 | `MAX_UPLOAD_MB` | `50` | |
 | `RETENTION_HOURS` | `24` | després, el fitxer s'esborra i ja no es pot reimprimir |
-| `ENABLE_OFFICE` | `false` | DOCX/ODT/XLSX/PPTX amb LibreOffice (la imatge ja l'inclou) |
+| `ENABLE_OFFICE` | `false` | DOCX/ODT/XLSX/PPTX amb LibreOffice; cal construir la imatge amb `--build-arg INSTALL_OFFICE=true` |
 | `CUPS_WEB_URL` | `http://192.168.1.200:631` | enllaç discret a la interfície de CUPS |
 | `TZ` | `Europe/Madrid` | |
 

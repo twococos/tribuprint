@@ -20,7 +20,7 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
 # 3. Imatge final
 FROM python:3.13.14-slim-trixie
-ARG INSTALL_OFFICE=true
+ARG INSTALL_OFFICE=false
 RUN apt-get update \
  && apt-get install -y --no-install-recommends libcups2t64 fonts-dejavu-core \
  && if [ "$INSTALL_OFFICE" = "true" ]; then \
