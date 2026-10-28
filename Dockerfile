@@ -42,7 +42,7 @@ ENV PATH=/opt/venv/bin:$PATH \
     DATA_DIR=/data \
     STATIC_DIR=/app/static \
     TZ=Europe/Madrid \
-    PORT=7007
+    PORT=7100
 USER 1000:1000
-EXPOSE 7007
+EXPOSE 7100
 CMD ["python", "-m", "app"]

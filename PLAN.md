@@ -37,7 +37,7 @@ Ha de ser estèticament cuidada, amb **mode clar per defecte** i en **català**.
 | Usuari | `coco` (uid 1000, gid 1000), membre de `lpadmin` (gid 112) i `docker` |
 | Firewall | `ufw` actiu. Docker se'l salta amb els ports publicats, però **no** amb `network_mode: host` |
 | Zona horària | El servidor és UTC; el contenidor ha de fer servir `TZ=Europe/Madrid` |
-| Ports ocupats | 22 53 80 81 443 631 1883 2283 3000 3493 6881 7000-7006 8081 8123 60000… **El 7007 és lliure** → TribuPrint |
+| Ports ocupats | 22 53 80 81 443 631 1883 2283 3000 3493 6881 7000-7006 8081 8123 60000… **El 7100 és lliure** → TribuPrint (els 70xx són de l'arr-stack) |
 | Patró de desplegament | Com `canconer`: imatge a `ghcr.io/twococos/<app>:latest`, compose a `~/<app>/docker-compose.yml` + `.env`, volum `./data`, logging json-file 10m×3; NPM a `~/npm` |
 | Domini | Hi ha DuckDNS (`~/duckdns`); un subdomini tipus `print.<nom>.duckdns.org` funciona |
 
@@ -59,7 +59,7 @@ Ha de ser estèticament cuidada, amb **mode clar per defecte** i en **català**.
 ## Arquitectura
 
 ```
-Navegador ──HTTPS──> NPM (Docker, bridge) ──http──> 192.168.1.200:7007
+Navegador ──HTTPS──> NPM (Docker, bridge) ──http──> 192.168.1.200:7100
                                                      │  contenidor tribuprint (network_mode: host, user 1000:1000)
                                                      ├─ FastAPI + frontend estàtic
                                                      ├─ CUPS via socket Unix /run/cups/cups.sock  (enviar, cancel·lar, pausar…)
@@ -285,7 +285,7 @@ README.md            # funcionament, dev, desplegament, NPM, calibratge del dúp
 | `CUPS_SERVER` | `/run/cups/cups.sock` |
 | `CUPS_PRINTER` | `Canon_TS3350` |
 | `IPPUSB_URL` | `ipp://localhost:60000/ipp/print` |
-| `PORT` | `7007` |
+| `PORT` | `7100` |
 | `DATA_DIR` | `/data` |
 | `MAX_UPLOAD_MB` | `50` |
 | `RETENTION_HOURS` | `24` |
@@ -309,7 +309,7 @@ services:
     volumes:
       - ./data:/data
       - /run/cups:/run/cups     # directori, no el fitxer (sobreviu als reinicis de CUPS)
-    healthcheck: { test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:7007/api/health')"], interval: 30s, timeout: 5s, retries: 3 }
+    healthcheck: { test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:7100/api/health')"], interval: 30s, timeout: 5s, retries: 3 }
     logging: { driver: json-file, options: { max-size: "10m", max-file: "3" } }
 ```
 
@@ -339,9 +339,9 @@ Aquestes comandes les executa **l'usuari**, no l'agent:
 sudo lpadmin -p Canon_TS3350 -o printer-error-policy=retry-job
 # Si encara no s'ha fet: treure la cua duplicada i cups-browsed
 sudo lpadmin -x Canon_TS3300_series_USB; sudo systemctl disable --now cups-browsed
-# Firewall: amb network_mode host, ufw sí que filtra el 7007
-sudo ufw allow from 192.168.1.0/24 to any port 7007 proto tcp    # accés directe des de la LAN
-sudo ufw allow from 172.16.0.0/12  to any port 7007 proto tcp    # NPM (xarxa Docker) → amfitrió
+# Firewall: amb network_mode host, ufw sí que filtra el 7100
+sudo ufw allow from 192.168.1.0/24 to any port 7100 proto tcp    # accés directe des de la LAN
+sudo ufw allow from 172.16.0.0/12  to any port 7100 proto tcp    # NPM (xarxa Docker) → amfitrió
 # Desplegament
 mkdir -p ~/tribuprint/data && cd ~/tribuprint   # copiar-hi deploy/docker-compose.yml i .env
 docker compose pull && docker compose up -d
@@ -351,7 +351,7 @@ Si el paquet de GHCR és privat, el servidor necessita `docker login ghcr.io`, i
 
 ### Nginx Proxy Manager
 
-- **Proxy Host:** `print.<nom>.duckdns.org` → `http://192.168.1.200:7007`.
+- **Proxy Host:** `print.<nom>.duckdns.org` → `http://192.168.1.200:7100`.
   - Activar SSL (Let's Encrypt, Force SSL).
   - Activar **Websockets Support**, que no és estrictament necessari per a SSE però no fa nosa.
 - **Pestanya Advanced:**
@@ -364,7 +364,7 @@ Si el paquet de GHCR és privat, el servidor necessita `docker login ghcr.io`, i
   - Authorization: un usuari i contrasenya.
   - Access: `allow 192.168.1.0/24`.
   - **Satisfy Any**: des de la LAN no demana contrasenya; des de fora, sí.
-  - Possible problema: si el router fa *NAT loopback*, quan accedeixes al domini des de casa la IP d'origen pot no ser de la LAN i et demanarà contrasenya igualment. Des de casa sempre es pot fer servir `http://192.168.1.200:7007`.
+  - Possible problema: si el router fa *NAT loopback*, quan accedeixes al domini des de casa la IP d'origen pot no ser de la LAN i et demanarà contrasenya igualment. Des de casa sempre es pot fer servir `http://192.168.1.200:7100`.
 
 ## Verificació
 
@@ -385,4 +385,4 @@ Si el paquet de GHCR és privat, el servidor necessita `docker login ghcr.io`, i
   5. Treure el paper: apareix l'alerta E02 i el treball espera. Posar paper i prémer OK: s'imprimeix.
   6. Apagar la impressora: l'estat passa a "Apagada", i en tornar-la a encendre es recupera sola.
   7. Dúplex manual amb un PDF de 3 pàgines: calibrar el text i la il·lustració de com girar el paquet.
-  8. Accés per `https://print.<nom>.duckdns.org` des del mòbil amb dades: demana contrasenya. Des de `http://192.168.1.200:7007`: no en demana.
+  8. Accés per `https://print.<nom>.duckdns.org` des del mòbil amb dades: demana contrasenya. Des de `http://192.168.1.200:7100`: no en demana.

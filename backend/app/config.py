@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     # Nom que s'envia a CUPS; ha de coincidir amb l'uid del procés (PeerCred)
     cups_user: str = "coco"
     ippusb_url: str = "ipp://localhost:60000/ipp/print"
-    port: int = 7007
+    port: int = 7100
     data_dir: Path = Path("/data")
     max_upload_mb: int = 50
     retention_hours: int = 24

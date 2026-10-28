@@ -11,7 +11,7 @@
 ## Arquitectura
 
 ```
-Navegador ──HTTPS──> NPM ──http──> 192.168.1.200:7007  (contenidor, network_mode: host, uid 1000)
+Navegador ──HTTPS──> NPM ──http──> 192.168.1.200:7100  (contenidor, network_mode: host, uid 1000)
                                     ├─ FastAPI + frontend estàtic (React)
                                     ├─ CUPS pel socket /run/cups/cups.sock   → enviar, cancel·lar, retenir, pausar
                                     └─ ipp-usb a ipp://localhost:60000        → estat en viu, tinta, alertes
@@ -38,7 +38,7 @@ Cal Python 3.13 (amb [uv](https://docs.astral.sh/uv/)) i Node 22.
 cd backend
 uv venv -p 3.13 .venv
 uv pip install -p .venv -r requirements.txt pytest==9.2.0 httpx==0.28.1   # a Windows/macOS pycups se salta sol
-PRINTER_BACKEND=mock DATA_DIR=../data .venv/bin/python -m app      # http://localhost:7007
+PRINTER_BACKEND=mock DATA_DIR=../data .venv/bin/python -m app      # http://localhost:7100
 
 # Frontend (una altra terminal)
 cd frontend
@@ -53,7 +53,7 @@ Per servir el frontend construït des de FastAPI (com en producció): `npm run b
 Amb Docker:
 
 ```bash
-docker compose -f compose.dev.yml up --build     # http://localhost:7007, backend mock
+docker compose -f compose.dev.yml up --build     # http://localhost:7100, backend mock
 ```
 
 ### Tests
@@ -72,7 +72,7 @@ cd frontend && npm run typecheck
 | `CUPS_PRINTER` | `Canon_TS3350` | nom de la cua |
 | `CUPS_USER` | `coco` | nom que s'envia a CUPS; ha de ser l'usuari de l'amfitrió amb uid 1000 |
 | `IPPUSB_URL` | `ipp://localhost:60000/ipp/print` | ipp-usb (només loopback) |
-| `PORT` | `7007` | |
+| `PORT` | `7100` | |
 | `DATA_DIR` | `/data` | BD i fitxers pujats |
 | `MAX_UPLOAD_MB` | `50` | |
 | `RETENTION_HOURS` | `24` | després, el fitxer s'esborra i ja no es pot reimprimir |
@@ -89,9 +89,9 @@ La imatge es publica a `ghcr.io/twococos/tribuprint:latest`. Al servidor (`ssh n
 sudo lpadmin -p Canon_TS3350 -o printer-error-policy=retry-job
 # 2. Si encara no s'ha fet: treure la cua duplicada i cups-browsed
 sudo lpadmin -x Canon_TS3300_series_USB; sudo systemctl disable --now cups-browsed
-# 3. Firewall: amb network_mode host, ufw sí que filtra el 7007
-sudo ufw allow from 192.168.1.0/24 to any port 7007 proto tcp    # LAN
-sudo ufw allow from 172.16.0.0/12  to any port 7007 proto tcp    # NPM (xarxa Docker) → amfitrió
+# 3. Firewall: amb network_mode host, ufw sí que filtra el 7100
+sudo ufw allow from 192.168.1.0/24 to any port 7100 proto tcp    # LAN
+sudo ufw allow from 172.16.0.0/12  to any port 7100 proto tcp    # NPM (xarxa Docker) → amfitrió
 # 4. Fitxers
 mkdir -p ~/tribuprint/data && cd ~/tribuprint
 #    copia-hi deploy/docker-compose.yml i deploy/.env.example (com a .env)
@@ -104,14 +104,14 @@ Si el paquet de GHCR és privat, abans cal `docker login ghcr.io`, com amb el `c
 
 ### Nginx Proxy Manager
 
-- **Proxy Host:** `print.<nom>.duckdns.org` → `http://192.168.1.200:7007`. SSL amb Let's Encrypt, *Force SSL*, *Websockets Support*.
+- **Proxy Host:** `print.<nom>.duckdns.org` → `http://192.168.1.200:7100`. SSL amb Let's Encrypt, *Force SSL*, *Websockets Support*.
 - **Advanced:**
   ```
   client_max_body_size 60m;
   proxy_buffering off;          # perquè l'SSE arribi en temps real
   proxy_read_timeout 1h;
   ```
-- **Access List «Tribu»:** usuari i contrasenya, `allow 192.168.1.0/24`, **Satisfy Any**. Des de la LAN no la demana; des de fora, sí. Si el router fa *NAT loopback*, des de casa pots fer servir `http://192.168.1.200:7007`.
+- **Access List «Tribu»:** usuari i contrasenya, `allow 192.168.1.0/24`, **Satisfy Any**. Des de la LAN no la demana; des de fora, sí. Si el router fa *NAT loopback*, des de casa pots fer servir `http://192.168.1.200:7100`.
 
 ## Calibratge del dúplex manual (TODO)
 
