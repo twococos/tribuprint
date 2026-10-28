@@ -1,14 +1,14 @@
-import { motion } from 'motion/react'
-import { Pencil, Plus } from 'lucide-react'
-import { useState } from 'react'
-import { useProfiles } from '../api/hooks'
-import type { Profile } from '../api/types'
-import { ThemeToggle } from '../components/Header'
-import { Logo } from '../components/Logo'
-import { ProfileAvatar } from '../components/ProfileAvatar'
-import { ProfileEditor } from '../components/ProfileEditor'
-import { profileStore } from '../lib/prefs'
-import { navigate } from '../lib/router'
+import { motion } from "motion/react"
+import { Pencil, Plus } from "lucide-react"
+import { useState } from "react"
+import { useProfiles } from "../api/hooks"
+import type { Profile } from "../api/types"
+import { ThemeToggle } from "../components/Header"
+import { Logo } from "../components/Logo"
+import { ProfileAvatar } from "../components/ProfileAvatar"
+import { ProfileEditor } from "../components/ProfileEditor"
+import { profileStore } from "../lib/prefs"
+import { navigate } from "../lib/router"
 
 export function ProfilesScreen() {
   const { data: profiles = [], isLoading } = useProfiles()
@@ -21,7 +21,7 @@ export function ProfilesScreen() {
   const pick = (p: Profile) => {
     if (manage) return setEditing(p)
     profileStore.set(p.id)
-    navigate('imprimeix')
+    navigate("imprimeix")
   }
 
   return (
@@ -33,14 +33,18 @@ export function ProfilesScreen() {
 
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-4 py-10 text-center">
         <h1 className="font-display text-4xl font-extrabold tracking-tight sm:text-6xl">
-          {first ? 'Benvinguts a la copisteria!' : manage ? 'Gestiona la tribu' : 'Qui imprimeix avui?'}
+          {first
+            ? "Benvinguts a la copisteria!"
+            : manage
+              ? "Gestiona la tribu"
+              : "Qui imprimeix avui?"}
         </h1>
         <p className="mt-3 text-lg text-muted">
           {first
-            ? 'Encara no hi ha ningú. Crea el primer perfil i comencem.'
+            ? "Encara no hi ha ningú. Crea el primer perfil i comencem."
             : manage
-              ? 'Toca un perfil per canviar-li el nom, l\'emoji o el color.'
-              : 'Tria qui ets. Sense contrasenyes, som família.'}
+              ? "Toca un perfil per canviar-li el nom, l'emoji o el color."
+              : ""}
         </p>
 
         <ul className="mt-10 grid grid-cols-2 gap-x-6 gap-y-8 sm:mt-14 sm:grid-cols-3 sm:gap-x-12 md:grid-cols-4">
@@ -63,7 +67,7 @@ export function ProfilesScreen() {
                   <ProfileAvatar
                     profile={p}
                     size="lg"
-                    className={`transition-shadow group-hover:shadow-[0_0_0_4px_var(--paper),0_0_0_7px_var(--ink)] ${current === p.id && !manage ? 'shadow-[0_0_0_4px_var(--paper),0_0_0_7px_var(--magenta)]' : ''}`}
+                    className={`transition-shadow group-hover:shadow-[0_0_0_4px_var(--paper),0_0_0_7px_var(--ink)] ${current === p.id && !manage ? "shadow-[0_0_0_4px_var(--paper),0_0_0_7px_var(--magenta)]" : ""}`}
                   />
                   {manage && (
                     <span className="absolute -right-1 -top-1 grid h-9 w-9 place-items-center rounded-full bg-ink text-paper shadow">
@@ -92,8 +96,12 @@ export function ProfilesScreen() {
         </ul>
 
         {profiles.length > 0 && (
-          <button type="button" className="btn btn-ghost mt-12" onClick={() => setManage((m) => !m)}>
-            {manage ? 'Fet' : 'Gestiona perfils'}
+          <button
+            type="button"
+            className="btn btn-ghost mt-12"
+            onClick={() => setManage((m) => !m)}
+          >
+            {manage ? "Fet" : "Gestiona perfils"}
           </button>
         )}
       </main>
@@ -106,7 +114,7 @@ export function ProfilesScreen() {
         onSaved={(p) => {
           if (first || profileStore.get() === null) {
             profileStore.set(p.id)
-            navigate('imprimeix')
+            navigate("imprimeix")
           }
         }}
       />
